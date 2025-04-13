@@ -50,16 +50,16 @@ public class Inicial {
         public void mover(java.awt.event.KeyEvent e) {
             int tecla = e.getKeyCode();
 
-            if (tecla == KeyEvent.VK_LEFT || tecla == KeyEvent.VK_A) {
+            if ((tecla == KeyEvent.VK_LEFT || tecla == KeyEvent.VK_A) && playerX - PSPEED >= 0) {
                 playerX -= PSPEED;
             }
-            if (tecla == KeyEvent.VK_RIGHT || tecla == KeyEvent.VK_D) {
+            if ((tecla == KeyEvent.VK_RIGHT || tecla == KeyEvent.VK_D) && (playerX + pWidth + PSPEED) <= getWidth()) {
                 playerX += PSPEED;
             }
-            if (tecla == KeyEvent.VK_UP || tecla == KeyEvent.VK_W) {
+            if ((tecla == KeyEvent.VK_UP || tecla == KeyEvent.VK_W) && playerY - PSPEED >= 0) {
                 playerY -= PSPEED;
             }
-            if (tecla == KeyEvent.VK_DOWN || tecla == KeyEvent.VK_S) {
+            if ((tecla == KeyEvent.VK_DOWN || tecla == KeyEvent.VK_S) && (playerY + pHeight + PSPEED) <= getHeight()) {
                 playerY += PSPEED;
             }
         }
