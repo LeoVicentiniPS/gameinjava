@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 public class Inicial {
 
@@ -22,6 +23,7 @@ public class Inicial {
         frame.add(painel);
         frame.pack();
         frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
         frame.setVisible(true);
 
     }
@@ -30,6 +32,7 @@ public class Inicial {
 
         private Thread tred;
         private boolean isRunning;
+        private Set<Integer> teclasPressionadas = new HashSet<>();
 
         private int playerX, playerY, pWidth = PWIDTH, pHeight = PHEIGHT;
 
@@ -41,27 +44,16 @@ public class Inicial {
             addKeyListener(new java.awt.event.KeyAdapter() {
                 @Override
                 public void keyPressed(java.awt.event.KeyEvent e) {
-                    mover(e);
+                    teclasPressionadas.add(e.getKeyCode());
+                }
+
+                @Override
+                public void keyReleased(java.awt.event.KeyEvent e) {
+                    teclasPressionadas.remove(e.getKeyCode());
                 }
             });
+
             startGame();
-        }
-
-        public void mover(java.awt.event.KeyEvent e) {
-            int tecla = e.getKeyCode();
-
-            if ((tecla == KeyEvent.VK_LEFT || tecla == KeyEvent.VK_A) && playerX - PSPEED >= 0) {
-                playerX -= PSPEED;
-            }
-            if ((tecla == KeyEvent.VK_RIGHT || tecla == KeyEvent.VK_D) && (playerX + pWidth + PSPEED) <= getWidth()) {
-                playerX += PSPEED;
-            }
-            if ((tecla == KeyEvent.VK_UP || tecla == KeyEvent.VK_W) && playerY - PSPEED >= 0) {
-                playerY -= PSPEED;
-            }
-            if ((tecla == KeyEvent.VK_DOWN || tecla == KeyEvent.VK_S) && (playerY + pHeight + PSPEED) <= getHeight()) {
-                playerY += PSPEED;
-            }
         }
 
         public void startGame() {
@@ -88,7 +80,43 @@ public class Inicial {
         }
 
         public void update() {
+            double dx = 0, dy = 0;
 
+            // Esquerda / A 
+            if (teclasPressionadas.contains(KeyEvent.VK_LEFT) || teclasPressionadas.contains(KeyEvent.VK_A)) {
+                dx -= 1;
+            }
+            // Direita / D
+            if (teclasPressionadas.contains(KeyEvent.VK_RIGHT) || teclasPressionadas.contains(KeyEvent.VK_D)) {
+                dx += 1;
+            }
+            // Cima / W
+            if (teclasPressionadas.contains(KeyEvent.VK_UP) || teclasPressionadas.contains(KeyEvent.VK_W)) {
+                dy -= 1;
+            }
+            // Baixo / S
+            if (teclasPressionadas.contains(KeyEvent.VK_DOWN) || teclasPressionadas.contains(KeyEvent.VK_S)) {
+                dy += 1;
+            }
+
+            // Normalizar o vetor (diagonal = 1)
+            double comprimento = Math.sqrt(dx * dx + dy * dy);
+            if (comprimento != 0) {
+                dx /= comprimento;
+                dy /= comprimento;
+            }
+
+            // Transforma o double em int
+            int nextX = (int) (playerX + dx * PSPEED);
+            int nextY = (int) (playerY + dy * PSPEED);
+
+            if (nextX >= 0 && nextX + pWidth <= getWidth()) {
+                playerX = nextX;
+            }
+
+            if (nextY >= 0 && nextY + pHeight <= getHeight()) {
+                playerY = nextY;
+            }
         }
 
         @Override
