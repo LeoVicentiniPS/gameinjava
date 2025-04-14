@@ -9,13 +9,13 @@ public class Inicial {
     public static int HEIGHT = 700;
     public static int PWIDTH = 40;
     public static int PHEIGHT = 40;
-    public static int PSPEED = 10;
+    public static int PSPEED = 5;
     public static int PX = 300;
     public static int PY = 300;
 
     public static void main(String[] args) {
 
-        JFrame frame = new JFrame("Java survivors");
+        JFrame frame = new JFrame("Java Wizard");
         JPanel painel = new GamePanel();
 
         painel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -33,14 +33,21 @@ public class Inicial {
         private Thread tred;
         private boolean isRunning;
         private Set<Integer> teclasPressionadas = new HashSet<>();
+        private int mouseX = WIDTH / 2;
+        private int mouseY = HEIGHT / 2;
+        private int playerX, playerY; 
+        private int pWidth = PWIDTH;
+        private int pHeight = PHEIGHT;
+        private double pjCooldown = 1.5;
+        private double pjTimer = 0;
 
-        private int playerX, playerY, pWidth = PWIDTH, pHeight = PHEIGHT;
 
         public GamePanel() {
+
             setFocusable(true);
             SwingUtilities.invokeLater(() -> requestFocusInWindow());
-
             requestFocusInWindow();
+
             addKeyListener(new java.awt.event.KeyAdapter() {
                 @Override
                 public void keyPressed(java.awt.event.KeyEvent e) {
@@ -51,6 +58,14 @@ public class Inicial {
                 public void keyReleased(java.awt.event.KeyEvent e) {
                     teclasPressionadas.remove(e.getKeyCode());
                 }
+            });
+
+            addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();
+            }
             });
 
             startGame();
@@ -117,8 +132,46 @@ public class Inicial {
             if (nextY >= 0 && nextY + pHeight <= getHeight()) {
                 playerY = nextY;
             }
+
+            // Projetil 
+            pjTimer += 1.0 / 60.0; // cada frame vale ~1/60s
+
+            if (pjTimer >= pjCooldown) {
+                shoot();
+                pjTimer = 0;
+            }
+
+            // Atualiza e remove projeteis
+            for (int i = 0; i < projCont.size(); i++) {
+                Projetil novoProjetil = projCont.get(i);
+
+                novoProjetil.update();
+
+                if (novoProjetil.isOutOfBounds(getWidth(), getHeight())) {
+                    projCont.remove(i);
+                    i--;
+                }
+            }
+
         }
 
+        private java.util.List<Projetil> projCont = new ArrayList<>();
+
+        private void shoot() {
+            double dirX = mouseX - (playerX + pWidth / 2);
+            double dirY = mouseY - (playerY + pHeight / 2);
+
+            Projetil novoProjetil = new Projetil(
+                playerX + pWidth / 2,
+                playerY + pHeight / 2,
+                dirX,
+                dirY,
+                8
+            );
+
+            projCont.add(novoProjetil);
+        }
+        
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -130,6 +183,11 @@ public class Inicial {
             // Player
             g.setColor(Color.BLACK);
             g.fillRect(playerX, playerY, pWidth, pHeight);
+
+            // Projeteis
+            for (Projetil p : projCont) {
+            p.draw(g);
+            }
         }
 
     }
