@@ -1,7 +1,5 @@
-import javax.swing.*;
+import static utils.Config.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
 
 public class Projetil {
     double x, y;
@@ -28,7 +26,7 @@ public class Projetil {
 
     public void draw(Graphics g) {
         g.setColor(Color.RED);
-        g.fillOval((int)x, (int)y, 10, 10);
+        g.fillOval((int) x, (int) y, PROJECTILE_SIZE, PROJECTILE_SIZE);
     }
 
     public boolean isOutOfBounds(int width, int height) {
