@@ -15,8 +15,10 @@ public class GamePanel extends JPanel implements Runnable {
     private double pjTimer = 0;
 
     private List<Projetil> projCont = new ArrayList<>();
+    private List<Inimigo> listaInimigos = new ArrayList<>();
 
-    private final Player player;
+
+    private Player player;
 
     private int mouseX = WINDOW_WIDTH / 2;
     private int mouseY = WINDOW_HEIGHT / 2;
@@ -32,12 +34,12 @@ public class GamePanel extends JPanel implements Runnable {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                player.getTeclasPressionadas().add(e.getKeyCode());
+                player.adicionarTecla(e.getKeyCode());
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                player.getTeclasPressionadas().remove(e.getKeyCode());
+                player.removerTecla(e.getKeyCode());
             }
         });
 
@@ -56,6 +58,7 @@ public class GamePanel extends JPanel implements Runnable {
     public void startGame() {
 
         isRunning = true;
+        listaInimigos.add(new Inimigo(100, 100, player));
         gameThread = new Thread(this);
         gameThread.start();
     }
@@ -96,6 +99,10 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
 
+        for(Inimigo inimigo : listaInimigos) {
+            inimigo.update();
+        }
+
     }
 
     private void shoot() {
@@ -129,8 +136,12 @@ public class GamePanel extends JPanel implements Runnable {
         player.draw(g);
 
         // Projeteis
-        for (Projetil p : projCont) {
-            p.draw(g);
+        for (Projetil projD : projCont) {
+            projD.draw(g);
+        }
+
+        for (Inimigo iniD : listaInimigos){
+            iniD.draw(g);
         }
     }
 
