@@ -1,5 +1,5 @@
-import static utils.Config.*;
 import java.awt.*;
+import static utils.Config.*;
 
 public class Projetil {
     double x, y;
@@ -25,7 +25,7 @@ public class Projetil {
     }
 
     public void draw(Graphics g) {
-        g.setColor(Color.RED);
+        g.setColor(PROJECTILE_COLOR);
         g.fillOval((int) x, (int) y, PROJECTILE_SIZE, PROJECTILE_SIZE);
     }
 

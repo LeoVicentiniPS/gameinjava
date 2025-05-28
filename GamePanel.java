@@ -1,45 +1,43 @@
-import java.util.List;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
-
+import java.util.List;
+import javax.swing.*;
 import static utils.Config.*;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.util.Set;
-import java.util.HashSet;
 
 public class GamePanel extends JPanel implements Runnable {
 
     private Thread gameThread;
     private boolean isRunning;
 
-    private int mouseX = WINDOW_WIDTH / 2;
-    private int mouseY = WINDOW_HEIGHT / 2;
-    private int playerX, playerY;
-    private int pWidth = PLAYER_WIDTH;
-    private int pHeight = PLAYER_HEIGHT;
     private double pjCooldown = PROJECTILE_COOLDOWN;
     private double pjTimer = 0;
 
-    private Set<Integer> teclasPressionadas = new HashSet<>();
     private List<Projetil> projCont = new ArrayList<>();
+
+    private final Player player;
+
+    private int mouseX = WINDOW_WIDTH / 2;
+    private int mouseY = WINDOW_HEIGHT / 2;
 
     public GamePanel() {
 
         setFocusable(true);
-        SwingUtilities.invokeLater(() -> requestFocusInWindow());
+        SwingUtilities.invokeLater(this::requestFocusInWindow);
         requestFocusInWindow();
 
-        addKeyListener(new java.awt.event.KeyAdapter() {
+        player = new Player(PLAYER_START_X, PLAYER_START_Y, PLAYER_WIDTH, PLAYER_HEIGHT);
+
+        addKeyListener(new KeyAdapter() {
             @Override
-            public void keyPressed(java.awt.event.KeyEvent e) {
-                teclasPressionadas.add(e.getKeyCode());
+            public void keyPressed(KeyEvent e) {
+                player.getTeclasPressionadas().add(e.getKeyCode());
             }
 
             @Override
-            public void keyReleased(java.awt.event.KeyEvent e) {
-                teclasPressionadas.remove(e.getKeyCode());
+            public void keyReleased(KeyEvent e) {
+                player.getTeclasPressionadas().remove(e.getKeyCode());
             }
         });
 
@@ -48,6 +46,7 @@ public class GamePanel extends JPanel implements Runnable {
             public void mouseMoved(MouseEvent e) {
                 mouseX = e.getX();
                 mouseY = e.getY();
+                player.setMousePosition(mouseX, mouseY);
             }
         });
 
@@ -55,8 +54,6 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void startGame() {
-        playerX = PLAYER_START_X;
-        playerY = PLAYER_START_Y;
 
         isRunning = true;
         gameThread = new Thread(this);
@@ -78,46 +75,9 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        double dx = 0, dy = 0;
+        pjTimer += 1.0 / 60.0;
 
-        // Esquerda / A
-        if (teclasPressionadas.contains(KeyEvent.VK_LEFT) || teclasPressionadas.contains(KeyEvent.VK_A)) {
-            dx -= 1;
-        }
-        // Direita / D
-        if (teclasPressionadas.contains(KeyEvent.VK_RIGHT) || teclasPressionadas.contains(KeyEvent.VK_D)) {
-            dx += 1;
-        }
-        // Cima / W
-        if (teclasPressionadas.contains(KeyEvent.VK_UP) || teclasPressionadas.contains(KeyEvent.VK_W)) {
-            dy -= 1;
-        }
-        // Baixo / S
-        if (teclasPressionadas.contains(KeyEvent.VK_DOWN) || teclasPressionadas.contains(KeyEvent.VK_S)) {
-            dy += 1;
-        }
-
-        // Normalizar o vetor (diagonal = 1)
-        double comprimento = Math.sqrt(dx * dx + dy * dy);
-        if (comprimento != 0) {
-            dx /= comprimento;
-            dy /= comprimento;
-        }
-
-        // Transforma o double em int
-        int nextX = (int) (playerX + dx * PLAYER_SPEED);
-        int nextY = (int) (playerY + dy * PLAYER_SPEED);
-
-        if (nextX >= 0 && nextX + pWidth <= getWidth()) {
-            playerX = nextX;
-        }
-
-        if (nextY >= 0 && nextY + pHeight <= getHeight()) {
-            playerY = nextY;
-        }
-
-        // Projetil
-        pjTimer += 1.0 / 60.0; // cada frame vale ~1/60s
+        player.update();
 
         if (pjTimer >= pjCooldown) {
             shoot();
@@ -139,18 +99,23 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void shoot() {
-        double dirX = mouseX - (playerX + pWidth / 2);
-        double dirY = mouseY - (playerY + pHeight / 2);
+        int centerX = player.getX() + PLAYER_WIDTH / 2;
+        int centerY = player.getY() + PLAYER_HEIGHT / 2;
+
+        double dirX = mouseX - centerX;
+        double dirY = mouseY - centerY;
 
         Projetil novoProjetil = new Projetil(
-                playerX + pWidth / 2,
-                playerY + pHeight / 2,
-                dirX,
-                dirY,
-                PROJECTILE_SPEED);
+            centerX,
+            centerY,
+            dirX,
+            dirY,
+            PROJECTILE_SPEED
+        );
 
         projCont.add(novoProjetil);
     }
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -161,8 +126,7 @@ public class GamePanel extends JPanel implements Runnable {
         g.fillRect(0, 0, getWidth(), getHeight());
 
         // Player
-        g.setColor(Color.BLACK);
-        g.fillRect(playerX, playerY, pWidth, pHeight);
+        player.draw(g);
 
         // Projeteis
         for (Projetil p : projCont) {
