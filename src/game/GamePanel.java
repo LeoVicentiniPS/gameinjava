@@ -1,11 +1,16 @@
+package game;
+import entities.Entidade;
+import entities.Inimigo;
+import entities.Player;
+import entities.Projetil;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-import static uteis.Config.*;
-import uteis.Config.EstadoJogo;
-import static uteis.Interface.*;
+import static ui.Interface.*;
+import static utils.Config.*;
+import utils.Config.EstadoJogo;
 
 
 public class GamePanel extends JPanel implements Runnable {

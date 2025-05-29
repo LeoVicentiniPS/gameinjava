@@ -1,3 +1,4 @@
+package entities;
 import java.awt.Graphics;
 
 public abstract class Entidade {
