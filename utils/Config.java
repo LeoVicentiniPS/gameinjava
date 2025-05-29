@@ -1,11 +1,11 @@
 package utils;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class Config {
     //Janela
-    public static final int WINDOW_WIDTH = 800;
-    public static final int WINDOW_HEIGHT = 600;
+    public static final int WINDOW_WIDTH = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+    public static final int WINDOW_HEIGHT = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
     public static final String GAME_TITLE = "Java Wizard";
 
     //Player
