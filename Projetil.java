@@ -1,35 +1,31 @@
 import java.awt.*;
 import static utils.Config.*;
 
-public class Projetil {
-    double x, y;
-    double dx, dy;
-    double speed;
+public class Projetil extends Entidade {
+    private final int size = PROJECTILE_SIZE;
+    private final Color color = Color.RED;
 
-    // Inicia projétil com coordenada, direção inicial e velocidade
-    public Projetil(double startX, double startY, double dirX, double dirY, double speed) {
-        this.x = startX;
-        this.y = startY;
+    public Projetil(int x, int y, double dirX, double dirY, double speed) {
+        super(x, y);
+        this.dx = dirX;
+        this.dy = dirY;
         this.speed = speed;
-        // Normalização do vetor
-        double length = Math.sqrt(dirX * dirX + dirY * dirY);
-        if (length != 0) {
-            this.dx = dirX / length;
-            this.dy = dirY / length;
-        }
+        normalizarMovimento();
     }
 
+    @Override
     public void update() {
         x += dx * speed;
         y += dy * speed;
     }
 
+    @Override
     public void draw(Graphics g) {
-        g.setColor(PROJECTILE_COLOR);
-        g.fillOval((int) x, (int) y, PROJECTILE_SIZE, PROJECTILE_SIZE);
+        g.setColor(color);
+        g.fillOval(x, y, size, size);
     }
 
-    public boolean isOutOfBounds(int width, int height) {
-        return x < 0 || x > width || y < 0 || y > height;
+    public boolean isOutOfBounds(int largura, int altura) {
+        return x < 0 || y < 0 || x > largura || y > altura;
     }
 }

@@ -1,15 +1,16 @@
-
 import java.awt.*;
+import static utils.Config.*;
+
 public class Inimigo extends Entidade {
-    private final int width = 40;
-    private final int height = 40;
+    private final int width = ENEMY_WIDTH;
+    private final int height = ENEMY_HEIGHT;
     private final Color color = Color.BLACK;
 
     private Player alvo;
 
     public Inimigo(int x, int y, Player alvo) {
         super(x, y);     
-        this.speed = 2.0;    
+        this.speed = ENEMY_SPEED;    
         this.alvo = alvo;
     }
 

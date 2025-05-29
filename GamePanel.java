@@ -14,14 +14,52 @@ public class GamePanel extends JPanel implements Runnable {
     private double pjCooldown = PROJECTILE_COOLDOWN;
     private double pjTimer = 0;
 
+    private double inCooldown = ENEMY_COOLDOWN;
+    private double inTimer = 0;
+
     private List<Projetil> projCont = new ArrayList<>();
     private List<Inimigo> listaInimigos = new ArrayList<>();
-
 
     private Player player;
 
     private int mouseX = WINDOW_WIDTH / 2;
     private int mouseY = WINDOW_HEIGHT / 2;
+
+    private boolean colide(Entidade a, Entidade b, int aWidth, int aHeight, int bWidth, int bHeight) {
+    return a.getX() < b.getX() + bWidth &&
+           a.getX() + aWidth > b.getX() &&
+           a.getY() < b.getY() + bHeight &&
+           a.getY() + aHeight > b.getY();
+    }
+
+    private Point gerarSpawnAleatorio() {
+        int margem = 50; 
+        int lado = (int)(Math.random() * 4); 
+
+        int x = 0, y = 0;
+
+        switch (lado) {
+            case 0: // Topo
+                x = (int)(Math.random() * WINDOW_WIDTH);
+                y = -margem;
+                break;
+            case 1: // Baixo
+                x = (int)(Math.random() * WINDOW_WIDTH);
+                y = WINDOW_HEIGHT + margem;
+                break;
+            case 2: // Esquerda
+                x = -margem;
+                y = (int)(Math.random() * WINDOW_HEIGHT);
+                break;
+            case 3: // Direita
+                x = WINDOW_WIDTH + margem;
+                y = (int)(Math.random() * WINDOW_HEIGHT);
+                break;
+        }
+
+        return new Point(x, y);
+    }
+
 
     public GamePanel() {
 
@@ -30,7 +68,9 @@ public class GamePanel extends JPanel implements Runnable {
         requestFocusInWindow();
 
         player = new Player(PLAYER_START_X, PLAYER_START_Y, PLAYER_WIDTH, PLAYER_HEIGHT);
-
+        listaInimigos.add(new Inimigo(0, 0 , player));
+        listaInimigos.add(new Inimigo(500, 500 , player));
+        
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -58,7 +98,6 @@ public class GamePanel extends JPanel implements Runnable {
     public void startGame() {
 
         isRunning = true;
-        listaInimigos.add(new Inimigo(100, 100, player));
         gameThread = new Thread(this);
         gameThread.start();
     }
@@ -103,6 +142,29 @@ public class GamePanel extends JPanel implements Runnable {
             inimigo.update();
         }
 
+        inTimer += 1.0 / 60.0;
+
+        if (inTimer >= inCooldown) {
+            Point posRandom = gerarSpawnAleatorio();
+            listaInimigos.add(new Inimigo(posRandom.x,posRandom.y, player));
+            inTimer = 0;
+        }
+
+        // Verifica colisões entre projéteis e inimigos
+        for (int i = 0; i < projCont.size(); i++) {
+            Projetil p = projCont.get(i);
+
+            for (int j = 0; j < listaInimigos.size(); j++) {
+                Inimigo inimigo = listaInimigos.get(j);
+
+                if (colide(p, inimigo, PROJECTILE_SIZE, PROJECTILE_SIZE, 40, 40)) {
+                    projCont.remove(i);
+                    listaInimigos.remove(j);
+                    i--;
+                    break; // Sai do loop de inimigos
+                }
+            }
+        }
     }
 
     private void shoot() {

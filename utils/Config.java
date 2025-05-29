@@ -16,9 +16,14 @@ public class Config {
     public static final int PLAYER_START_Y = WINDOW_HEIGHT / 2 - PLAYER_HEIGHT / 2;
 
     //Projetil
-    public static final double PROJECTILE_COOLDOWN = 1.5;
+    public static final double PROJECTILE_COOLDOWN = 0.3;
     public static final int PROJECTILE_SPEED = 10;
     public static final int PROJECTILE_SIZE = 10;
     public static final Color PROJECTILE_COLOR = Color.RED;
 
+    //Inimigo
+    public static final int ENEMY_WIDTH = 30;
+    public static final int ENEMY_HEIGHT = 30;
+    public static final int ENEMY_SPEED = 4;
+    public static final double ENEMY_COOLDOWN = 0.6;
 }
