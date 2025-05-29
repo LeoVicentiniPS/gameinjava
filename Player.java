@@ -2,7 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.HashSet;
 import java.util.Set;
-import static utils.Config.*;
+import static uteis.Config.*;
 
 public class Player extends Entidade {
 

@@ -1,5 +1,5 @@
 import java.awt.*;
-import static utils.Config.*;
+import static uteis.Config.*;
 
 public class Inimigo extends Entidade {
     private final int width = ENEMY_WIDTH;

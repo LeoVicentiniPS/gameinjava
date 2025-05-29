@@ -1,5 +1,5 @@
 import java.awt.*;
-import static utils.Config.*;
+import static uteis.Config.*;
 
 public class Projetil extends Entidade {
     private final int size = PROJECTILE_SIZE;

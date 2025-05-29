@@ -1,4 +1,4 @@
-package utils;
+package uteis;
 
 import java.awt.*;
 
@@ -7,6 +7,12 @@ public class Config {
     public static final int WINDOW_WIDTH = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth();
     public static final int WINDOW_HEIGHT = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
     public static final String GAME_TITLE = "Java Wizard";
+    public enum EstadoJogo {
+        MENU,
+        JOGANDO,
+        PAUSADO,
+        GAME_OVER
+    }
 
     //Player
     public static final int PLAYER_WIDTH = 50;
