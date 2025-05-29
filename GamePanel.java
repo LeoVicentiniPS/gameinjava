@@ -25,11 +25,23 @@ public class GamePanel extends JPanel implements Runnable {
     private int mouseX = WINDOW_WIDTH / 2;
     private int mouseY = WINDOW_HEIGHT / 2;
 
+    private void resetGame() {
+        // Limpa tudo
+        projCont.clear();
+        listaInimigos.clear();
+
+        player.setX(PLAYER_START_X);
+        player.setY(PLAYER_START_Y);
+
+        pjTimer = 0;
+        inTimer = 0;
+    }
+
     private boolean colide(Entidade a, Entidade b, int aWidth, int aHeight, int bWidth, int bHeight) {
-    return a.getX() < b.getX() + bWidth &&
-           a.getX() + aWidth > b.getX() &&
-           a.getY() < b.getY() + bHeight &&
-           a.getY() + aHeight > b.getY();
+        return a.getX() < b.getX() + bWidth &&
+            a.getX() + aWidth > b.getX() &&
+            a.getY() < b.getY() + bHeight &&
+            a.getY() + aHeight > b.getY();
     }
 
     private Point gerarSpawnAleatorio() {
@@ -60,7 +72,6 @@ public class GamePanel extends JPanel implements Runnable {
         return new Point(x, y);
     }
 
-
     public GamePanel() {
 
         setFocusable(true);
@@ -68,8 +79,6 @@ public class GamePanel extends JPanel implements Runnable {
         requestFocusInWindow();
 
         player = new Player(PLAYER_START_X, PLAYER_START_Y, PLAYER_WIDTH, PLAYER_HEIGHT);
-        listaInimigos.add(new Inimigo(0, 0 , player));
-        listaInimigos.add(new Inimigo(500, 500 , player));
         
         addKeyListener(new KeyAdapter() {
             @Override
@@ -142,8 +151,40 @@ public class GamePanel extends JPanel implements Runnable {
             inimigo.update();
         }
 
+        // Evita que inimigos se sobreponham
+        for (int i = 0; i < listaInimigos.size(); i++) {
+            Inimigo a = listaInimigos.get(i);
+
+            for (int j = i + 1; j < listaInimigos.size(); j++) {
+                Inimigo b = listaInimigos.get(j);
+
+                if (colide(a, b, 40, 40, 40, 40)) {
+                // Calcula vetor de afastamento
+                    int dx = a.getX() - b.getX();
+                    int dy = a.getY() - b.getY();
+
+                    // Evita divisão por zero
+                    if (dx == 0 && dy == 0) {
+                        dx = 1;
+                        dy = 1;
+                    }
+
+                    double dist = Math.sqrt(dx * dx + dy * dy);
+                    double push = 1.0; // força para separação
+
+                    // Normaliza vetor e aplica separação
+                    a.setX((int)(a.getX() + push * (dx / dist)));
+                    a.setY((int)(a.getY() + push * (dy / dist)));
+
+                    b.setX((int)(b.getX() - push * (dx / dist)));
+                    b.setY((int)(b.getY() - push * (dy / dist)));
+                }
+            }
+        }
+
         inTimer += 1.0 / 60.0;
 
+        // Spawn aleatório de inimigos
         if (inTimer >= inCooldown) {
             Point posRandom = gerarSpawnAleatorio();
             listaInimigos.add(new Inimigo(posRandom.x,posRandom.y, player));
@@ -161,8 +202,16 @@ public class GamePanel extends JPanel implements Runnable {
                     projCont.remove(i);
                     listaInimigos.remove(j);
                     i--;
-                    break; // Sai do loop de inimigos
+                    break; 
                 }
+            }
+        }
+
+        // Verifica colisão entre inimigo e jogador
+        for (Inimigo inimigo : listaInimigos) {
+            if (colide(inimigo, player, 40, 40, PLAYER_WIDTH, PLAYER_HEIGHT)) {
+                resetGame();
+                return;
             }
         }
     }
