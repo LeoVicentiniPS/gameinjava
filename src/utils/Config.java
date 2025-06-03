@@ -32,4 +32,8 @@ public class Config {
     public static final int ENEMY_HEIGHT = 30;
     public static final int ENEMY_SPEED = 4;
     public static final double ENEMY_COOLDOWN = 0.6;
+
+    //Coletaveis
+    public static final int ORB_SIZE = 10;
+    public static final int ORB_SPEED = 4;
 }

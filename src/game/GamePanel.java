@@ -1,8 +1,8 @@
 package game;
-import entities.Entidade;
 import entities.Inimigo;
 import entities.Player;
 import entities.Projetil;
+import entities.XpOrb;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -25,8 +25,10 @@ public class GamePanel extends JPanel implements Runnable {
     private double inCooldown = ENEMY_COOLDOWN;
     private double inTimer = 0;
 
-    private List<Projetil> projCont = new ArrayList<>();
+    private List<Projetil> projList = new ArrayList<>();
     private List<Inimigo> listaInimigos = new ArrayList<>();
+    private List<XpOrb> xpList = new ArrayList<>();
+
 
     private Player player;
 
@@ -35,21 +37,16 @@ public class GamePanel extends JPanel implements Runnable {
 
     private void resetGame() {
         // Limpa tudo
-        projCont.clear();
+        projList.clear();
         listaInimigos.clear();
+        xpList.clear();
+        player.resetXp();
 
         player.setX(PLAYER_START_X);
         player.setY(PLAYER_START_Y);
 
         pjTimer = 0;
         inTimer = 0;
-    }
-
-    private boolean colide(Entidade a, Entidade b, int aWidth, int aHeight, int bWidth, int bHeight) {
-        return a.getX() < b.getX() + bWidth &&
-            a.getX() + aWidth > b.getX() &&
-            a.getY() < b.getY() + bHeight &&
-            a.getY() + aHeight > b.getY();
     }
 
     private Point gerarSpawnAleatorio() {
@@ -169,13 +166,13 @@ public class GamePanel extends JPanel implements Runnable {
             }
 
             // Atualiza e remove projeteis
-            for (int i = 0; i < projCont.size(); i++) {
-                Projetil novoProjetil = projCont.get(i);
+            for (int i = 0; i < projList.size(); i++) {
+                Projetil novoProjetil = projList.get(i);
 
                 novoProjetil.update();
 
                 if (novoProjetil.isOutOfBounds(getWidth(), getHeight())) {
-                    projCont.remove(i);
+                    projList.remove(i);
                     i--;
                 }
             }
@@ -191,7 +188,7 @@ public class GamePanel extends JPanel implements Runnable {
                 for (int j = i + 1; j < listaInimigos.size(); j++) {
                     Inimigo b = listaInimigos.get(j);
 
-                    if (colide(a, b, 40, 40, 40, 40)) {
+                    if (a.colide(b)) {
                     // Calcula vetor de afastamento
                         int dx = a.getX() - b.getX();
                         int dy = a.getY() - b.getY();
@@ -218,29 +215,40 @@ public class GamePanel extends JPanel implements Runnable {
             // Spawn aleatório de inimigos
             if (inTimer >= inCooldown) {
                 Point posRandom = gerarSpawnAleatorio();
-                listaInimigos.add(new Inimigo(posRandom.x,posRandom.y, player));
+                listaInimigos.add(new Inimigo(posRandom.x,posRandom.y, 30, 30, player));
                 inTimer = 0;
             }
 
             // Verifica colisões entre projéteis e inimigos
-            for (int i = 0; i < projCont.size(); i++) {
-                Projetil p = projCont.get(i);
+            for (int i = 0; i < projList.size(); i++) {
+                Projetil proj = projList.get(i);
 
                 for (int j = 0; j < listaInimigos.size(); j++) {
                     Inimigo inimigo = listaInimigos.get(j);
 
-                    if (colide(p, inimigo, PROJECTILE_SIZE, PROJECTILE_SIZE, 40, 40)) {
-                        projCont.remove(i);
+                    if (proj.colide(inimigo)) {
+                        projList.remove(i);
                         listaInimigos.remove(j);
                         i--;
+                        xpList.add(new XpOrb(inimigo.getX(), inimigo.getY(), 10, player));
                         break; 
                     }
                 }
             }
 
+            for (XpOrb exp : xpList) {
+                exp.update();
+                if (exp.colide(player)) {
+                    player.ganharXp(exp.getXpValue()); 
+                    exp.foiColetado();
+                }
+            }
+
+            xpList.removeIf(orb -> orb.checkColetado());
+
             // Verifica colisão entre inimigo e jogador
             for (Inimigo inimigo : listaInimigos) {
-                if (colide(inimigo, player, 40, 40, PLAYER_WIDTH, PLAYER_HEIGHT)) {
+                if (inimigo.colide(player)) {
                     estadoAtual = EstadoJogo.GAME_OVER;
                     return;
                 }
@@ -263,7 +271,7 @@ public class GamePanel extends JPanel implements Runnable {
             PROJECTILE_SPEED
         );
 
-        projCont.add(novoProjetil);
+        projList.add(novoProjetil);
     }
 
     @Override
@@ -274,15 +282,17 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (estadoAtual == EstadoJogo.JOGANDO) {
             player.draw(g);
-            for (Projetil p : projCont) p.draw(g);
+            for (Projetil p : projList) p.draw(g);
             for (Inimigo i : listaInimigos) i.draw(g);
+            for (XpOrb orb : xpList) orb.draw(g);
+
         } 
         else if (estadoAtual == EstadoJogo.MENU) {
             drawMenu(g);
         } 
         else if (estadoAtual == EstadoJogo.PAUSADO) {
             player.draw(g);
-            for (Projetil p : projCont) p.draw(g);
+            for (Projetil p : projList) p.draw(g);
             for (Inimigo i : listaInimigos) i.draw(g);
             drawPause(g);
         } 

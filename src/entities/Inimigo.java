@@ -9,8 +9,8 @@ public class Inimigo extends Entidade {
 
     private Player alvo;
 
-    public Inimigo(int x, int y, Player alvo) {
-        super(x, y);     
+    public Inimigo(int x, int y, int width, int height, Player alvo) {
+        super(x, y, width, height);     
         this.speed = ENEMY_SPEED;    
         this.alvo = alvo;
     }

@@ -3,11 +3,11 @@ import java.awt.*;
 import static utils.Config.*;
 
 public class Projetil extends Entidade {
-    private final int size = PROJECTILE_SIZE;
     private final Color color = Color.RED;
+    private int size = PROJECTILE_SIZE;
 
     public Projetil(int x, int y, double dirX, double dirY, double speed) {
-        super(x, y);
+        super(x, y, PROJECTILE_SIZE);
         this.dx = dirX;
         this.dy = dirY;
         this.speed = speed;

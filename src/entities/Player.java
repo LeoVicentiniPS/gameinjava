@@ -9,6 +9,7 @@ public class Player extends Entidade {
 
     private final int width;
     private final int height;
+    private int experience = 0;
 
     private int mouseX = WINDOW_WIDTH / 2;
     private int mouseY = WINDOW_HEIGHT / 2;
@@ -16,7 +17,7 @@ public class Player extends Entidade {
     private final Set<Integer> teclasPressionadas = new HashSet<>();
 
     public Player(int x, int y, int width, int height) {
-        super(x, y);
+        super(x, y, width, height);
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
         this.speed = PLAYER_SPEED;
@@ -37,6 +38,14 @@ public class Player extends Entidade {
 
     public Set<Integer> getTeclasPressionadas() {
         return teclasPressionadas;
+    }
+
+    public void ganharXp(int quantidade) {
+        experience += quantidade;
+    }
+
+    public void resetXp() {
+        experience = 0;
     }
 
     @Override
@@ -75,5 +84,6 @@ public class Player extends Entidade {
     public void draw(Graphics g) {
         g.setColor(Color.BLUE);
         g.fillRect(x, y, width, height);
+        g.drawString(String.valueOf(experience), x, y);
     }
 }
