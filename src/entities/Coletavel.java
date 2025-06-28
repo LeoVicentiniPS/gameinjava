@@ -5,8 +5,8 @@ import java.awt.Graphics;
 public abstract class Coletavel extends Entidade {
     protected boolean coletado = false;
 
-    public Coletavel(int x, int y, int width, int height) {
-        super(x, y, width, height);
+    public Coletavel(int x, int y, int size) {
+        super(x, y, size);
         
     }
 
@@ -18,7 +18,14 @@ public abstract class Coletavel extends Entidade {
         return coletado;
     }
 
-    public abstract void checarColeta(Player player);
+    public void checarColeta(Player player) {
+        if (this.colide(player)) {
+            aplicarEfeito(player);
+            this.foiColetado();
+        }
+    }
+
+    protected abstract void aplicarEfeito(Player player);
 
     @Override
     public abstract void update();

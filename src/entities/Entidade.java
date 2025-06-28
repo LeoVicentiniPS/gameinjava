@@ -31,16 +31,12 @@ public abstract class Entidade {
     }
 
     public boolean colide(Entidade other) {
-        int otherWidth = other.getWidth();
-        int otherHeight = other.getHeight();
-        int thisHeight = this.getHeight();
-        int thisWidth = this.getWidth();
-
-        return this.getX() < other.getX() + otherWidth &&
-            this.getX() + thisWidth > other.getX() &&
-            this.getY() < other.getY() + otherHeight &&
-            this.getY() + thisHeight > other.getY();
+        return x < other.x + other.width &&
+            x + width > other.x &&
+            y < other.y + other.height &&
+            y + height > other.y;
     }
+
 
     public int getX() {
         return x;

@@ -1,3 +1,4 @@
+
 package game;
 import entities.Inimigo;
 import entities.Player;
@@ -8,6 +9,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import resources.sounds.Sound;
 import static ui.Interface.*;
 import static utils.Config.*;
 import utils.Config.EstadoJogo;
@@ -26,7 +28,7 @@ public class GamePanel extends JPanel implements Runnable {
     private double inTimer = 0;
 
     private List<Projetil> projList = new ArrayList<>();
-    private List<Inimigo> listaInimigos = new ArrayList<>();
+    private List<Inimigo> enemyList = new ArrayList<>();
     private List<XpOrb> xpList = new ArrayList<>();
 
 
@@ -38,7 +40,7 @@ public class GamePanel extends JPanel implements Runnable {
     private void resetGame() {
         // Limpa tudo
         projList.clear();
-        listaInimigos.clear();
+        enemyList.clear();
         xpList.clear();
         player.resetXp();
 
@@ -56,19 +58,19 @@ public class GamePanel extends JPanel implements Runnable {
         int x = 0, y = 0;
 
         switch (lado) {
-            case 0: // Topo
+            case 0: 
                 x = (int)(Math.random() * WINDOW_WIDTH);
                 y = -margem;
                 break;
-            case 1: // Baixo
+            case 1: 
                 x = (int)(Math.random() * WINDOW_WIDTH);
                 y = WINDOW_HEIGHT + margem;
                 break;
-            case 2: // Esquerda
+            case 2: 
                 x = -margem;
                 y = (int)(Math.random() * WINDOW_HEIGHT);
                 break;
-            case 3: // Direita
+            case 3: 
                 x = WINDOW_WIDTH + margem;
                 y = (int)(Math.random() * WINDOW_HEIGHT);
                 break;
@@ -177,16 +179,16 @@ public class GamePanel extends JPanel implements Runnable {
                 }
             }
 
-            for(Inimigo inimigo : listaInimigos) {
+            for(Inimigo inimigo : enemyList) {
                 inimigo.update();
             }
 
             // Evita que inimigos se sobreponham
-            for (int i = 0; i < listaInimigos.size(); i++) {
-                Inimigo a = listaInimigos.get(i);
+            for (int i = 0; i < enemyList.size(); i++) {
+                Inimigo a = enemyList.get(i);
 
-                for (int j = i + 1; j < listaInimigos.size(); j++) {
-                    Inimigo b = listaInimigos.get(j);
+                for (int j = i + 1; j < enemyList.size(); j++) {
+                    Inimigo b = enemyList.get(j);
 
                     if (a.colide(b)) {
                     // Calcula vetor de afastamento
@@ -215,7 +217,7 @@ public class GamePanel extends JPanel implements Runnable {
             // Spawn aleatório de inimigos
             if (inTimer >= inCooldown) {
                 Point posRandom = gerarSpawnAleatorio();
-                listaInimigos.add(new Inimigo(posRandom.x,posRandom.y, 30, 30, player));
+                enemyList.add(new Inimigo(posRandom.x,posRandom.y, 30, 30, player));
                 inTimer = 0;
             }
 
@@ -223,12 +225,12 @@ public class GamePanel extends JPanel implements Runnable {
             for (int i = 0; i < projList.size(); i++) {
                 Projetil proj = projList.get(i);
 
-                for (int j = 0; j < listaInimigos.size(); j++) {
-                    Inimigo inimigo = listaInimigos.get(j);
+                for (int j = 0; j < enemyList.size(); j++) {
+                    Inimigo inimigo = enemyList.get(j);
 
                     if (proj.colide(inimigo)) {
                         projList.remove(i);
-                        listaInimigos.remove(j);
+                        enemyList.remove(j);
                         i--;
                         xpList.add(new XpOrb(inimigo.getX(), inimigo.getY(), 10, player));
                         break; 
@@ -239,6 +241,7 @@ public class GamePanel extends JPanel implements Runnable {
             for (XpOrb exp : xpList) {
                 exp.update();
                 if (exp.colide(player)) {
+                    Sound.play("exp.wav");
                     player.ganharXp(exp.getXpValue()); 
                     exp.foiColetado();
                 }
@@ -247,7 +250,7 @@ public class GamePanel extends JPanel implements Runnable {
             xpList.removeIf(orb -> orb.checkColetado());
 
             // Verifica colisão entre inimigo e jogador
-            for (Inimigo inimigo : listaInimigos) {
+            for (Inimigo inimigo : enemyList) {
                 if (inimigo.colide(player)) {
                     estadoAtual = EstadoJogo.GAME_OVER;
                     return;
@@ -283,7 +286,7 @@ public class GamePanel extends JPanel implements Runnable {
         if (estadoAtual == EstadoJogo.JOGANDO) {
             player.draw(g);
             for (Projetil p : projList) p.draw(g);
-            for (Inimigo i : listaInimigos) i.draw(g);
+            for (Inimigo i : enemyList) i.draw(g);
             for (XpOrb orb : xpList) orb.draw(g);
 
         } 
@@ -293,7 +296,7 @@ public class GamePanel extends JPanel implements Runnable {
         else if (estadoAtual == EstadoJogo.PAUSADO) {
             player.draw(g);
             for (Projetil p : projList) p.draw(g);
-            for (Inimigo i : listaInimigos) i.draw(g);
+            for (Inimigo i : enemyList) i.draw(g);
             drawPause(g);
         } 
         else if (estadoAtual == EstadoJogo.GAME_OVER) {
